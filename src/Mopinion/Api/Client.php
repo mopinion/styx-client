@@ -58,4 +58,56 @@ class Client extends BaseClient
         return $this->_makeRequest();
     }
 
+
+    /**
+    * Retrieve feedback for given report
+    * @return Mopinion\Api\Response\Response
+    */
+    public function getReportFeedback( $reportId = null )
+    {
+        $this->_addHeader('X-Report-Id', $reportId);
+        $this->_setRoute( Route::REPORT_FEEDBACK );
+
+        return $this->_makeRequest();
+    }
+
+
+    /**
+     * Retrieve fields for given report
+     * @return Mopinion\Api\Response\Response
+     */
+    public function getReportFields( $reportId = null )
+    {
+        $this->_addHeader('X-Report-Id', $reportId);
+        $this->_setRoute( Route::REPORT_FIELDS );
+
+        return $this->_makeRequest();
+    }
+
+
+    /**
+     * Retrieve feedback for given dataset
+     * @return Mopinion\Api\Response\Response
+     */
+    public function getDatasetFeedback( $datasetId = null )
+    {
+        $this->_addHeader('X-Dataset-Id', $datasetId);
+        $this->_setRoute( Route::DATASET_FEEDBACK );
+
+        return $this->_makeRequest();
+    }
+
+
+    /**
+     * Retrieve fields for given dataset
+     * @return Mopinion\Api\Response\Response
+     */
+    public function getDatasetFields( $datasetId = null )
+    {
+        $this->_addHeader('X-Dataset-Id', $datasetId);
+        $this->_setRoute( Route::DATASET_FIELDS );
+
+        return $this->_makeRequest();
+    }
+
 }
