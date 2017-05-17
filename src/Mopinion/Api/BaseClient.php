@@ -3,6 +3,7 @@
 namespace Mopinion\Api;
 
 use Mopinion\Api\Response\Response;
+use Mopinion\Api\Route;
 use GuzzleHttp\Client as HttpClient;
 
 
@@ -17,14 +18,6 @@ class BaseClient
     const HASH_METHOD   = 'sha256';
     const METHOD_GET    = 'GET';
     const METHOD_POST   = 'POST';
-
-    const ROUTE_ROOT                = '/';
-    const ROUTE_ACCOUNT             = 'account';
-    const ROUTE_TOKEN               = 'token';
-    const ROUTE_DATASET_FEEDBACK    = 'feedback/dataset';
-    const ROUTE_REPORT_FEEDBACK     = 'feedback/report';
-    const ROUTE_DATASET_FIELDS      = 'fields/dataset';
-    const ROUTE_REPORT_FIELDS       = 'fields/report';
 
     private $privateKey         = null;
     private $publicKey          = null;
@@ -55,10 +48,10 @@ class BaseClient
         $requestOptions = [];
 
         // The route for getting the token requires basic authentication, rather than a signature
-        if( $this->route === self::ROUTE_TOKEN ) {
+        if( $this->route === Route::TOKEN ) {
             $requestOptions['auth'] = array($this->publicKey, $this->privateKey);
 
-        }else if ($this->route !== self::ROUTE_ROOT ){
+        }else if ($this->route !== Route::ROOT ){
 
             $this->_addHeader('X-Auth-Token', $this->_generateAuthToken() );
         }

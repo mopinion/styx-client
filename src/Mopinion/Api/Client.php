@@ -4,6 +4,8 @@ namespace Mopinion\Api;
 
 use Mopinion\Api\BaseClient;
 use Mopinion\Api\Response\Response;
+use Mopinion\Api\Route;
+
 
 /**
  * Extension for the Base Client class
@@ -24,7 +26,7 @@ class Client extends BaseClient
      */
     public function ping()
     {
-        $this->_setRoute( self::ROUTE_ROOT );
+        $this->_setRoute( Route::ROOT );
 
         return $this->_makeRequest( Response::MODEL_PING );
     }
@@ -39,7 +41,7 @@ class Client extends BaseClient
         if( !empty($publicKey) ) { $this->setPublicKey( $publicKey ); }
         if( !empty($privateKey) ) { $this->setPrivateKey( $privateKey ); }
 
-        $this->_setRoute( self::ROUTE_TOKEN );
+        $this->_setRoute( Route::TOKEN );
 
         return $this->_makeRequest( Response::MODEL_TOKEN );
     }
@@ -51,7 +53,7 @@ class Client extends BaseClient
      */
     public function getAccount()
     {
-        $this->_setRoute( self::ROUTE_ACCOUNT );
+        $this->_setRoute( Route::ACCOUNT );
 
         return $this->_makeRequest();
     }
