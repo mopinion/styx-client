@@ -12,7 +12,7 @@ use GuzzleHttp\Client as HttpClient;
  */
 class BaseClient
 {
-    const API_VERSION   = '0.0.1';
+    const API_VERSION   = '1.0.0';
     const API_URL       = 'https://api.mopinion.com';
 
     const HASH_METHOD   = 'sha256';
