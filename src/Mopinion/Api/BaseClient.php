@@ -205,4 +205,48 @@ class BaseClient
         return $this->headers;
     }
 
+
+    /**
+     * Set/Unset the 'limit' request header
+     * @param  integer $limit maximum results returned by the API
+     */
+    public function limit( $limit = 0 )
+    {
+        $limit = (int) $limit;
+
+        if( empty($limit) ){
+
+            $this->_removeHeader('limit');
+
+        }else{
+
+            $this->_addHeader('limit', $limit);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Set/Unset the 'page' request header.
+     * Together with the 'limit' this allows the API  to calculate the resultset's offset automatically
+     * @param  integer $page pagenumber
+     */
+    public function page( $page = 0 )
+    {
+        $page = (int) $page;
+
+        if( empty($page) ){
+
+            $this->_removeHeader('page');
+
+        }else{
+
+            $this->_addHeader('page', $page);
+        }
+
+
+        return $this;
+    }
+
 }
