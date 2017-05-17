@@ -183,6 +183,20 @@ class BaseClient
 
 
     /**
+     * Remove a request header from the 'headers' property
+     * @param string $key
+     */
+    protected function _removeHeader($key)
+    {
+        if( in_array( $key, array_keys($this->headers) ) ){
+            unset( $this->headers[$key] );
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Return the 'headers' property
      * @return [type] [description]
      */
@@ -190,4 +204,5 @@ class BaseClient
     {
         return $this->headers;
     }
+
 }
