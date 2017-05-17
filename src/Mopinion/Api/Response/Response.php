@@ -19,6 +19,7 @@ class Response
 
     protected $bodyString   = null;
 
+    private $decodedJson    = null;
     private $guzzleResponse = null;
     private $headers        = [];
 
@@ -33,6 +34,11 @@ class Response
         $this->headers = $response->getHeaders();
 
         $this->bodyString = (string) $response->getBody();
+        $this->decodedJson = json_decode($this->bodyString);
+
+        $this->meta = $this->decodedJson ? $this->decodedJson->_meta : false;
+        $this->count = $this->_count();
+
     }
 
 
@@ -72,10 +78,8 @@ class Response
      */
     public function getBody()
     {
-        $decodedJSON = json_decode($this->bodyString);
-
-        if($decodedJSON) {
-            return $decodedJSON;
+        if( $this->decodedJson ) {
+            return $this->decodedJson;
         }
 
         return $this->bodyString;
@@ -135,6 +139,15 @@ class Response
     public function toArray()
     {
         return json_decode($this->bodyString, true);
+    }
+
+
+    private function _count()
+    {
+        $data = $this->toArray();
+        unset($data['_meta']);
+
+        return count( $data );
     }
 
 
