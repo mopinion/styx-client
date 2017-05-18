@@ -119,16 +119,21 @@ class Response
      * Return response body as a JSON encoded string
      * @return string
      */
-    public function toJson()
+    public function toJson($pretty=false)
     {
-        // If the response data wasn't already JSON (which in most cases it should be)
-        // create a simple JSON string for it now
-        $isJson =  json_decode($this->bodyString);
-        if(!$isJson){
-            return json_encode( array('_response' => $this->bodyString ));
+        $arrayObject =  json_decode($this->bodyString);
+
+        // If the response data wasn't already JSON (which in most cases it should be),
+        // wrap it in a simple array, so we can encode it
+        if(!$arrayObject){
+            $arrayObject = array('_response' => $this->bodyString );
         }
 
-        return $this->bodyString;
+        if($pretty) {
+            return json_encode($arrayObject, JSON_PRETTY_PRINT);
+        }
+
+        return json_encode($arrayObject);
     }
 
 
