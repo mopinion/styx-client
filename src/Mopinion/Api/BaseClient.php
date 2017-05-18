@@ -12,26 +12,28 @@ use GuzzleHttp\Client as HttpClient;
  */
 class BaseClient
 {
-    const VERSION       = '1.0.0';
+    const VERSION       = '1.0.1';
     const API_URL       = 'https://api.mopinion.com';
 
     const HASH_METHOD   = 'sha256';
     const METHOD_GET    = 'GET';
     const METHOD_POST   = 'POST';
 
-    private $privateKey         = null;
-    private $publicKey          = null;
-    private $domain             = null;
+    private static $privateKey         = null;
+    private static $publicKey          = null;
+    private static $domain             = null;
+    private static $signatureToken     = null;
+    private static $headers            = [];
+
     private $route              = null;
-    private $signatureToken     = null;
     private $data               = '';
 
 
     public function __construct($domain = null, $publicKey = null, $privateKey = null)
     {
-        if( !empty( $domain ) ) { $this->setDomain( $domain ); }
-        if( !empty( $publicKey) ) { $this->setPublicKey( $publicKey );  }
-        if( !empty( $privateKey) ) { $this->setPrivateKey( $privateKey );  }
+        if( !empty( $domain ) ) { self::setDomain( $domain ); }
+        if( !empty( $publicKey) ) { self::setPublicKey( $publicKey );  }
+        if( !empty( $privateKey) ) { self::setPrivateKey( $privateKey );  }
     }
 
 
@@ -49,11 +51,11 @@ class BaseClient
 
         // The route for getting the token requires basic authentication, rather than a signature
         if( $this->route === Route::TOKEN ) {
-            $requestOptions['auth'] = array($this->publicKey, $this->privateKey);
+            $requestOptions['auth'] = array(self::$publicKey, self::$privateKey);
 
         }else if ($this->route !== Route::ROOT ){
 
-            $this->_addHeader('X-Auth-Token', $this->_generateAuthToken() );
+            self::_addHeader('X-Auth-Token', $this->_generateAuthToken() );
         }
 
         // Add the request headers
@@ -71,15 +73,15 @@ class BaseClient
      */
     protected function _generateSignature()
     {
-        if(empty($this->signatureToken)){
+        if(empty(self::$signatureToken)){
             $code = 1;
             throw new \Exception("Signature token is not set, error code:{$code}");
         }
 
         // overload signature token for demo settings
-        if ($this->privateKey === 'mpn_demo_private'){ return 'mpn_demo_signature'; }
+        if (self::$privateKey === 'mpn_demo_private'){ return 'mpn_demo_signature'; }
 
-        return hash_hmac(self::HASH_METHOD, "/{$this->route}|{$this->data}", $this->signatureToken);
+        return hash_hmac(self::HASH_METHOD, "/{$this->route}|{$this->data}", self::$signatureToken);
     }
 
 
@@ -89,15 +91,15 @@ class BaseClient
      */
     protected function _generateAuthToken()
     {
-        if( empty($this->publicKey) ) {
+        if( empty(self::$publicKey) ) {
             throw new \Exception("Public key is not set", 1);
         }
 
-        if( empty($this->signatureToken) ) {
+        if( empty(self::$signatureToken) ) {
             throw new \Exception("Signature token is not set", 1);
         }
 
-        return base64_encode($this->publicKey .":". $this->_generateSignature() );
+        return base64_encode(self::$publicKey .":". $this->_generateSignature() );
     }
 
 
@@ -105,11 +107,9 @@ class BaseClient
      * Sets the public key property
      * @param string $publicKey
      */
-    public function setPublicKey($publicKey = null)
+    public static function setPublicKey($publicKey = null)
     {
-        $this->publicKey = $publicKey;
-
-        return $this;
+        self::$publicKey = $publicKey;
     }
 
 
@@ -117,11 +117,9 @@ class BaseClient
      * Sets the private key property
      * @param string $privateKey
      */
-    public function setPrivateKey($privateKey = null)
+    public static function setPrivateKey($privateKey = null)
     {
-        $this->privateKey = $privateKey;
-
-        return $this;
+        self::$privateKey = $privateKey;
     }
 
 
@@ -129,12 +127,10 @@ class BaseClient
      * Sets the 'domain' property
      * @param string $domain  format: [subdomain].mopinion.[tld]
      */
-    public function setDomain($domain = null)
+    public static function setDomain($domain = null)
     {
-        $this->domain = $domain;
-        $this->_addHeader('domain', $this->domain);
-
-        return $this;
+        self::$domain = $domain;
+        self::_addHeader('domain', self::$domain);
     }
 
 
@@ -144,8 +140,7 @@ class BaseClient
      */
     public function setSignatureToken($token = null)
     {
-        $this->signatureToken = $token;
-        return $this;
+        self::$signatureToken = $token;
     }
 
 
@@ -175,10 +170,9 @@ class BaseClient
      * @param string $key
      * @param string $value
      */
-    protected function _addHeader($key, $value)
+    protected static function _addHeader($key, $value)
     {
-        $this->headers[$key] = $value;
-        return $this;
+        self::$headers[$key] = $value;
     }
 
 
@@ -186,13 +180,11 @@ class BaseClient
      * Remove a request header from the 'headers' property
      * @param string $key
      */
-    protected function _removeHeader($key)
+    protected static function _removeHeader($key)
     {
-        if( in_array( $key, array_keys($this->headers) ) ){
-            unset( $this->headers[$key] );
+        if( in_array( $key, array_keys(self::$headers) ) ){
+            unset( self::$headers[$key] );
         }
-
-        return $this;
     }
 
 
@@ -202,7 +194,7 @@ class BaseClient
      */
     private function _getHeaders()
     {
-        return $this->headers;
+        return self::$headers;
     }
 
 
@@ -215,15 +207,11 @@ class BaseClient
         $limit = (int) $limit;
 
         if( empty($limit) ){
-
-            $this->_removeHeader('limit');
-
+            self::_removeHeader('limit');
         }else{
-
-            $this->_addHeader('limit', $limit);
+            self::_addHeader('limit', $limit);
         }
 
-        return $this;
     }
 
 
@@ -238,15 +226,11 @@ class BaseClient
 
         if( empty($page) ){
 
-            $this->_removeHeader('page');
+            self::_removeHeader('page');
 
         }else{
-
-            $this->_addHeader('page', $page);
+            self::_addHeader('page', $page);
         }
-
-
-        return $this;
     }
 
 }
